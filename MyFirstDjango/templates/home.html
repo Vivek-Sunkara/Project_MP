@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Programming</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://static1.bigstockphoto.com/5/2/2/large1500/225204559.jpg'); /* Replace with your image URL */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        h1 {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            width: 100%;
+            font-size: 2rem;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #mainButton {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        #mainButton:hover {
+            background-color: #0056b3;
+        }
+
+        .options {
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .options a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #28a745;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .options a:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+  
+    <div class="button-container">
+        <button id="mainButton">Linear problem</button>
+        <div class="options">
+            <a href="Graphical_method_of_solution_to_LP.html" target="_blank">Graphical method of solution to LP</a>
+            <a href="https://example2.com" target="_blank">Option 2</a>
+        </div>
+    </div>
+
+    <script>
+        const mainButton = document.getElementById('mainButton');
+        const options = document.querySelector('.options');
+
+        mainButton.addEventListener('click', () => {
+            options.style.display = options.style.display === 'none' || options.style.display === '' ? 'flex' : 'none';
+        });
+    </script>
+</body>
+</html>
