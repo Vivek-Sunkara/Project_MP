@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Programming Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result, .solution, .graph {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Linear Programming Solver</h1>
+    <div class="container">
+        <textarea id="objective" placeholder="Objective function (e.g., 5*x + 4*y)"></textarea>
+        <textarea id="constraints" placeholder="Constraints (e.g., ax + by <= c, one per line)"></textarea>
+        <select id="optimization_type">
+            <option value="max">Maximize</option>
+            <option value="min">Minimize</option>
+        </select>
+        <button onclick="solveLP()">Solve</button>
+
+        <div class="result">
+            <h3>Result</h3>
+            <div id="result-box"></div>
+        </div>
+        <div class="solution">
+            <h3>Solution</h3>
+            <div id="solution-box"></div>
+        </div>
+        <div class="graph">
+            <h3>Graph</h3>
+            <img id="graph-box" alt="Graph will appear here" />
+        </div>
+    </div>
+
+    <script>
+        async function solveLP() {
+            const objective = document.getElementById("objective").value;
+            const constraints = document.getElementById("constraints").value;
+            const optimization_type = document.getElementById("optimization_type").value;
+
+            const response = await fetch("/solve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ objective, constraints, optimization_type })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById("result-box").innerText = `Objective Value: ${result.solution.objective}`;
+                document.getElementById("solution-box").innerText = `x: ${result.solution.x}, y: ${result.solution.y}`;
+                document.getElementById("graph-box").src = "data:image/png;base64," + result.graph;
+            } else {
+                document.getElementById("result-box").innerText = `Error: ${result.message}`;
+                document.getElementById("solution-box").innerText = "";
+                document.getElementById("graph-box").src = "";
+            }
+        }
+    </script>
+</body>
+</html>
