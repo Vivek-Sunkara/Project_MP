@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Programming Solver</title>
+</head>
+<body>
+    <h1>Linear Programming Solver</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div>
+            <label for="objective_function">Objective Function:</label>
+            <textarea id="objective_function" name="objective_function" rows="4" cols="50">{{ obj_func }}</textarea>
+        </div>
+
+        <div>
+            <label for="constraints">Constraints:</label>
+            <textarea id="constraints" name="constraints" rows="6" cols="50">{{ constraints }}</textarea>
+        </div>
+
+        <div>
+            <label for="optimization">Optimization Type:</label>
+            <select id="optimization" name="optimization">
+                <option value="max" {% if opt == 'max' %}selected{% endif %}>Maximization</option>
+                <option value="min" {% if opt == 'min' %}selected{% endif %}>Minimization</option>
+            </select>
+        </div>
+
+        <button type="submit">Solve</button>
+    </form>
+
+    {% if optimal_point %}
+        <h2>Optimal Solution:</h2>
+        <p>Optimal Point: {{ optimal_point }}</p>
+        <p>Optimal Value: {{ optimal_value }}</p>
+        <img src="data:image/png;base64,{{ graph }}" alt="Graphical Solution">
+    {% endif %}
+
+    {% if error %}
+        <div style="color: red;">
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+</body>
+</html>

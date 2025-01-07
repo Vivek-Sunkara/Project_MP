@@ -9,86 +9,134 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background-image: url('https://static1.bigstockphoto.com/5/2/2/large1500/225204559.jpg'); /* Replace with your image URL */
+            background-color: #f7f7f7;
+            color: #333;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            margin: 0 20px;
+            color: #007BFF;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 100px 20px 50px;
+            background-image: url('https://www.shutterstock.com/shutterstock/photos/1451060429/display_1500/stock-photo-creative-educational-sketch-on-chalkboard-background-with-copy-space-education-and-complex-concept-1451060429.jpg');
             background-size: cover;
             background-position: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             color: #fff;
+            margin-top: 70px;
         }
 
-        h1 {
-            position: absolute;
-            top: 20px;
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 1rem;
+            margin-top: 0;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 100%;
-            font-size: 2rem;
-            text-shadow: 1px 1px 2px #000;
+            transition: transform 0.3s ease;
         }
 
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .dashboard-card:hover {
+            transform: translateY(-5px);
         }
 
-        #mainButton {
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            color: #fff;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        .dashboard-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
         }
 
-        #mainButton:hover {
-            background-color: #0056b3;
+        .dashboard-card p {
+            font-size: 1rem;
+            color: #555;
         }
 
-        .options {
-            margin-top: 20px;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .options a {
-            text-decoration: none;
-            color: #fff;
-            background-color: #28a745;
-            padding: 10px 20px;
-            border-radius: 5px;
+        .footer {
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            background-color: #333;
+            color: #fff;
+            font-size: 0.9rem;
         }
 
-        .options a:hover {
-            background-color: #218838;
-        }
     </style>
 </head>
 <body>
-  
-    <div class="button-container">
-        <button id="mainButton">Linear problem</button>
-        <div class="options">
-            <a href="Graphical_method_of_solution_to_LP.html" target="_blank">Graphical method of solution to LP</a>
-            <a href="https://example2.com" target="_blank">Option 2</a>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="{% url 'linear_programming_solver' %}">Graphical Method</a>
+        <a href="/dashboard">Dashboard</a> <!-- Link to Dashboard -->
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Mathematical Programming</h1>
+        <p>We are here to help you solve complex problems with ease.</p>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div class="dashboard">
+        <div class="dashboard-card">
+            <h3>User Information</h3>
+            <p>View and edit your personal details</p>
+        </div>
+        <div class="dashboard-card">
+            <h3>Recent Activity</h3>
+            <p>Check out your recent activities</p>
+        </div>
+        <div class="dashboard-card">
+            <h3>Settings</h3>
+            <p>Update your preferences</p>
         </div>
     </div>
 
-    <script>
-        const mainButton = document.getElementById('mainButton');
-        const options = document.querySelector('.options');
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 SlimKits. All rights reserved.</p>
+    </footer>
 
-        mainButton.addEventListener('click', () => {
-            options.style.display = options.style.display === 'none' || options.style.display === '' ? 'flex' : 'none';
-        });
-    </script>
 </body>
 </html>

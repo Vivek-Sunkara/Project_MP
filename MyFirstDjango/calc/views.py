@@ -1,134 +1,197 @@
 from django.shortcuts import render
-
-# Create your views here.
-import json
-import base64
-from io import BytesIO
+from django.http import JsonResponse
 import numpy as np
 import matplotlib.pyplot as plt
-from itertools import combinations
-from sympy import symbols, Eq, solve
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from sympy import symbols, Eq, solve, sympify
+import io
+import base64
 import re
 
-@csrf_exempt
-def solve_lp_graphical(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            objective = data.get("objective", "").replace(" ", "")  # Remove spaces
-            constraints = data.get("constraints", [])
-            optimization_type = data.get("optimization_type", "max").lower()  # max or min
+# Function to parse the objective function from a string
+def parse_objective_function(obj_func_str):
+    x, y = symbols('x y')
+    # Replace 'x' and 'y' with proper syntax for sympy to handle
+    obj_func_str = obj_func_str.replace('x', '*x').replace('y', '*y').replace(" ", "")
+    
+    # Now sympify the modified string
+    try:
+        obj_expr = sympify(obj_func_str)
+    except Exception as e:
+        raise ValueError(f"Error parsing objective function: {str(e)}")
+    
+    return obj_expr, x, y
 
-            # Input validation
-            if not objective:
-                return JsonResponse({"success": False, "message": "Objective function is required."})
-            if not constraints:
-                return JsonResponse({"success": False, "message": "At least one constraint is required."})
-            if optimization_type not in ["max", "min"]:
-                return JsonResponse({"success": False, "message": "Optimization type must be 'max' or 'min'."})
+# Function to parse constraints (this is a simple parser, you may need to refine it)
+def parse_constraints(constraints_str):
+    constraints = []
+    try:
+        # Split input by lines
+        for line in constraints_str.splitlines():
+            # Remove leading and trailing whitespace from each line
+            line = line.strip()
+            
+            # Use regular expression to match the pattern for constraints like '2x + 4y <= 80'
+            match = re.match(r'([-\d\w\s\+\*\/]+)(<=|>=|<|>)([-\d\w\s\+\*\/]+)', line)
+            if match:
+                lhs = match.group(1).strip()
+                operator = match.group(2)
+                rhs = match.group(3).strip()
 
-            # Parse the objective function
-            objective_pattern = re.compile(r'([-+]?\d+\.?\d*)([a-zA-Z])')
-            obj_coeffs = {match[1]: float(match[0]) for match in objective_pattern.findall(objective)}
-            c_x = obj_coeffs.get('x', 0)
-            c_y = obj_coeffs.get('y', 0)
-
-            # Parse constraints
-            constraint_lines = []
-            for constraint in constraints:
-                parts = re.split(r'(<=|>=|=)', constraint)
-                if len(parts) != 3:
-                    raise ValueError(f"Invalid constraint format: {constraint}")
-
-                left = parts[0].strip()
-                operator = parts[1]
-                right = parts[2].strip()
-
+                # Ensure rhs is a numeric value
                 try:
-                    right_value = float(right)
-                except ValueError:
-                    raise ValueError(f"Invalid right-hand side in constraint: {right}")
+                    rhs = sympify(rhs)
+                except:
+                    raise ValueError(f"Error parsing right-hand side value of constraint: {rhs}")
 
-                coeffs = {match[1]: float(match[0]) for match in objective_pattern.findall(left)}
-                constraint_lines.append((coeffs.get('x', 0), coeffs.get('y', 0), operator, right_value))
-
-            # Calculate intersection points
-            x, y = symbols('x y')
-            intersections = []
-            for (a1, b1, _, c1), (a2, b2, _, c2) in combinations(constraint_lines, 2):
-                eq1 = Eq(a1 * x + b1 * y, c1)
-                eq2 = Eq(a2 * x + b2 * y, c2)
-                sol = solve((eq1, eq2), (x, y))
-                if sol:
-                    intersections.append((sol[x], sol[y]))
-
-            # Filter feasible points
-            feasible_points = []
-            for px, py in intersections:
-                if all(
-                    (a * px + b * py <= rhs if op == "<=" else a * px + b * py >= rhs)
-                    for a, b, op, rhs in constraint_lines
-                ):
-                    feasible_points.append((px, py))
-
-            # Evaluate the objective function at feasible points
-            solutions = []
-            for px, py in feasible_points:
-                obj_value = c_x * px + c_y * py
-                solutions.append((px, py, obj_value))
-
-            # Find the optimal solution
-            if optimization_type == "max":
-                optimal_solution = max(solutions, key=lambda s: s[2])
+                constraints.append((lhs, rhs, operator))
             else:
-                optimal_solution = min(solutions, key=lambda s: s[2])
+                raise ValueError(f"Invalid constraint format: {line}")
+        return constraints
+    except Exception as e:
+        raise ValueError(f"Error parsing constraints: {e}")
 
-            # Plot the constraints and feasible region
-            fig, ax = plt.subplots()
-            x_vals = np.linspace(0, max([rhs for _, _, _, rhs in constraint_lines]) * 2, 500)
+# Function to find intersection points of constraints (simplified)
+def find_intersection_points(parsed_constraints):
+    x, y = symbols('x y')
+    points = []
+    try:
+        for i, (lhs1, rhs1, op1) in enumerate(parsed_constraints):
+            for j, (lhs2, rhs2, op2) in enumerate(parsed_constraints):
+                if i >= j:
+                    continue  # Skip duplicate pairs
+                # Convert strings like '2x + 4y' into sympy expressions
+                lhs1_expr = sympify(lhs1.replace('x', '*x').replace('y', '*y'))
+                lhs2_expr = sympify(lhs2.replace('x', '*x').replace('y', '*y'))
+                eq1 = Eq(lhs1_expr, rhs1)
+                eq2 = Eq(lhs2_expr, rhs2)
+                solution = solve((eq1, eq2), (x, y))
+                if solution:
+                    points.append((float(solution[x]), float(solution[y])))
+    except Exception as e:
+        raise ValueError(f"Error finding intersection points: {e}")
+    
+    return points
 
-            for a, b, op, rhs in constraint_lines:
-                if b != 0:
-                    y_vals = (rhs - a * x_vals) / b
-                    ax.plot(x_vals, y_vals, label=f"{a}x + {b}y {op} {rhs}")
-                else:
-                    ax.axvline(x=rhs / a, color='gray', linestyle='--', label=f"x = {rhs / a}")
+# Function to check if a point satisfies the constraints
+def is_feasible(point, parsed_constraints):
+    x, y = point
+    for lhs, rhs, operator in parsed_constraints:
+        expr = sympify(lhs.replace('x', '*x').replace('y', '*y')).subs({'x': x, 'y': y})
+        if operator == '<=' and expr > rhs:
+            return False
+        elif operator == '>=' and expr < rhs:
+            return False
+        elif operator == '<' and expr >= rhs:
+            return False
+        elif operator == '>' and expr <= rhs:
+            return False
+    return True
 
-            ax.scatter(*zip(*feasible_points), color='green', label="Feasible Points")
-            ax.scatter(optimal_solution[0], optimal_solution[1], color='red', label="Optimal Solution", zorder=5)
-            ax.set_xlim(0, max([rhs for _, _, _, rhs in constraint_lines]) * 1.5)
-            ax.set_ylim(0, max([rhs for _, _, _, rhs in constraint_lines]) * 1.5)
-            plt.xlabel("x")
-            plt.ylabel("y")
-            plt.title("Graphical Solution of Linear Programming")
-            plt.legend()
-            plt.grid()
+# Function to plot the solution graph
+def plot_solution(obj_func, parsed_constraints, optimal_point, optimal_value, opt):
+    x_vals = np.linspace(0, 50, 500)
+    plt.figure(figsize=(10, 6))
+    
+    for lhs, rhs, operator in parsed_constraints:
+        expr = sympify(lhs.replace('x', '*x').replace('y', '*y'))
+        y_vals = [solve(Eq(expr.subs(symbols('x'), val), rhs), symbols('y'))[0] if solve(Eq(expr.subs(symbols('x'), val), rhs), symbols('y')) else None for val in x_vals]
+        y_vals = np.array([float(yv) if yv is not None else np.nan for yv in y_vals])
+        plt.plot(x_vals, y_vals, label=f"{lhs} {operator} {rhs}")
 
-            # Encode graph as a Base64 image
-            buffer = BytesIO()
-            plt.savefig(buffer, format="png")
-            buffer.seek(0)
-            graph_base64 = base64.b64encode(buffer.read()).decode("utf-8")
-            buffer.close()
+    # Highlight optimal solution
+    plt.scatter(*optimal_point, color='green', s=100, zorder=5, label=f"Optimal Point: {optimal_point}, Z = {optimal_value:.2f}")
 
-            return JsonResponse({
-                "success": True,
-                "solution": {
-                    "x": optimal_solution[0],
-                    "y": optimal_solution[1],
-                    "objective": optimal_solution[2]
-                },
-                "graph": graph_base64
+    # Plot settings
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    plt.xlim(0, 50)
+    plt.ylim(0, 50)
+    plt.title(f"Graphical Solution ({opt.capitalize()}imization)")
+    plt.legend()
+    plt.grid(alpha=0.3)
+
+    # Save plot to a BytesIO buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    plt.close()
+    graph = base64.b64encode(image_png).decode("utf-8")
+    return graph
+
+# Helper function to provide a step-by-step breakdown
+def generate_step_by_step_solution(obj_func, parsed_constraints, intersection_points, feasible_points, optimal_point, optimal_value, opt):
+    steps = []
+    
+    steps.append("Step 1: Parsing the objective function and constraints.")
+    steps.append(f"Objective Function: {obj_func}")
+    steps.append(f"Constraints: {parsed_constraints}")
+    
+    steps.append("Step 2: Finding intersection points of the constraints.")
+    steps.append(f"Intersection Points: {intersection_points}")
+    
+    steps.append("Step 3: Checking the feasibility of the intersection points.")
+    steps.append(f"Feasible Points: {feasible_points}")
+    
+    steps.append("Step 4: Evaluating the objective function at the feasible points.")
+    steps.append(f"Optimal Point: {optimal_point} with Objective Value: {optimal_value}")
+    
+    steps.append(f"Step 5: Plotting the solution graph with the optimal point highlighted.")
+    
+    return steps
+
+def linear_programming_solver(request):
+    if request.method == "POST":
+        obj_func = request.POST.get("objective_function")
+        constraints = request.POST.get("constraints")
+        opt = request.POST.get("optimization").lower()
+
+        try:
+            obj_expr, x, y = parse_objective_function(obj_func)
+            parsed_constraints = parse_constraints(constraints)
+            intersection_points = find_intersection_points(parsed_constraints)
+
+            feasible_points = []
+            for point in intersection_points:
+                if is_feasible(point, parsed_constraints):
+                    feasible_points.append(point)
+
+            if not feasible_points:
+                raise ValueError("No feasible points found. Check constraints or objective function.")
+
+            objective_values = []
+            for point in feasible_points:
+                value = obj_expr.subs({'x': point[0], 'y': point[1]})
+                objective_values.append(value)
+
+            if opt == "max":
+                optimal_value = max(objective_values)
+            elif opt == "min":
+                optimal_value = min(objective_values)
+            else:
+                raise ValueError("Invalid optimization type. Choose 'max' or 'min'.")
+
+            optimal_point = feasible_points[objective_values.index(optimal_value)]
+            graph = plot_solution(obj_func, parsed_constraints, optimal_point, optimal_value, opt)
+
+            # Generate step-by-step explanation
+            steps = generate_step_by_step_solution(obj_func, parsed_constraints, intersection_points, feasible_points, optimal_point, optimal_value, opt)
+
+            return render(request, 'solver.html', {
+                'optimal_point': optimal_point,
+                'optimal_value': optimal_value,
+                'graph': graph,
+                'steps': steps,
+                'obj_func': obj_func,
+                'constraints': constraints,
+                'opt': opt
             })
-
         except Exception as e:
-            return JsonResponse({"success": False, "message": str(e)})
-    return JsonResponse({"success": False, "message": "Invalid request method."})
+            return render(request, 'solver.html', {'error': str(e)})
 
-def graphical_method(request):
-    return render(request, 'Graphical_method_of_solution_to_LP.html')
-
+    return render(request, 'solver.html')
 def home(request):
-    return render(request, 'home.html', {'name': 'Raju'})
+    return render(request, 'home.html') 
