@@ -7,6 +7,82 @@ import io
 import base64
 import re
 
+history = []
+
+def simplex_method(c, A, b):
+    """
+    Solves the Linear Programming problem using the Simplex Method.
+    Refer to the detailed code provided earlier.
+    """
+    num_constraints, num_variables = A.shape
+
+    # Add slack variables to convert inequalities to equalities
+    slack_vars = np.eye(num_constraints)
+    tableau = np.hstack((A, slack_vars, b.reshape(-1, 1)))
+
+    # Add the objective function row to the tableau
+    obj_row = np.hstack((-c, np.zeros(num_constraints + 1)))
+    tableau = np.vstack((tableau, obj_row))
+
+    num_total_vars = num_variables + num_constraints
+
+    # Start Simplex iterations
+    while True:
+        if all(tableau[-1, :-1] >= 0):
+            break
+
+        pivot_col = np.argmin(tableau[-1, :-1])
+        ratios = tableau[:-1, -1] / tableau[:-1, pivot_col]
+        ratios[ratios <= 0] = np.inf
+        pivot_row = np.argmin(ratios)
+
+        if np.all(ratios == np.inf):
+            return "The problem is unbounded.", None
+
+        pivot_element = tableau[pivot_row, pivot_col]
+        tableau[pivot_row, :] /= pivot_element
+
+        for i in range(tableau.shape[0]):
+            if i != pivot_row:
+                tableau[i, :] -= tableau[i, pivot_col] * tableau[pivot_row, :]
+
+    solution = np.zeros(num_total_vars)
+    for i in range(num_constraints):
+        basic_var_index = np.where(tableau[i, :-1] == 1)[0]
+        if len(basic_var_index) == 1 and basic_var_index[0] < num_total_vars:
+            solution[basic_var_index[0]] = tableau[i, -1]
+
+    optimal_value = tableau[-1, -1]
+    return solution[:num_variables], optimal_value
+
+
+def simplex_view(request):
+    global history
+    result = None
+    error = None
+    if request.method == 'POST':
+        try:
+            # Parse inputs from POST request
+            c = np.array(list(map(float, request.POST.get('c').split(','))))
+            A = np.array([list(map(float, row.split(','))) for row in request.POST.get('A').split(';')])
+            b = np.array(list(map(float, request.POST.get('b').split(','))))
+            
+            # Solve Simplex
+            solution, optimal_value = simplex_method(c, A, b)
+            if solution is None:
+                error = optimal_value
+            else:
+                result = {'solution': solution.tolist(), 'optimal_value': optimal_value}
+                # Save history
+                history.append({
+                    'input': {'c': c.tolist(), 'A': A.tolist(), 'b': b.tolist()},
+                    'output': result
+                })
+        except Exception as e:
+            error = str(e)
+    
+    # Render with history
+    return render(request, 'simplex_form.html', {'result': result, 'error': error, 'history': history})
 # Function to parse the objective function from a string
 def parse_objective_function(obj_func_str):
     x, y = symbols('x y')
