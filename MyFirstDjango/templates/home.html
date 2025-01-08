@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mathematical Programming</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -16,13 +17,16 @@
         /* Navigation Bar */
         .navbar {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
+            box-shadow: none;
             padding: 20px;
+            padding-left: 20px;
+            width: 100%;
+            position: absolute;
+            top: 0;
         }
-
         .navbar a {
             text-decoration: none;
             margin: 0 20px;
@@ -45,7 +49,6 @@
             background-size: cover;
             background-position: center;
             color: #fff;
-            margin-top: 70px;
         }
 
         .hero h1 {
@@ -92,14 +95,55 @@
             color: #555;
         }
 
+        /* Footer Section */
         .footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
+            background-color: #020910;
             color: #fff;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-info {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .footer-info p {
             font-size: 0.9rem;
         }
 
+        /* Social Media Icons */
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            flex: 1;
+            min-width: 300px;
+            margin-bottom: 10px;
+        }
+
+        .social-icons a {
+            margin: 0 10px;
+            color: #fff;
+            font-size: 24px;
+            transition: transform 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-3px);
+            color: #ffb74d;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +152,6 @@
     <div class="navbar">
         <a href="/">Home</a>
         <a href="{% url 'linear_programming_solver' %}">Graphical Method</a>
-        <a href="/dashboard">Dashboard</a> <!-- Link to Dashboard -->
     </div>
 
     <!-- Hero Section -->
@@ -120,23 +163,47 @@
     <!-- Dashboard Section -->
     <div class="dashboard">
         <div class="dashboard-card">
-            <h3>User Information</h3>
-            <p>View and edit your personal details</p>
+            <h3>Graphical solution LP</h3>
+            <p>The graphical solution to Linear Programming (LP) is used to visually solve optimization problems with two decision variables.</p>
+            <p><strong>Understand Feasibility:</strong> Identifies the feasible region satisfying all constraints.</p>
+            <p><strong>Find Optimal Solutions:</strong> Determines maximum or minimum values of the objective function at the region's vertices.</p>
+            <p><strong>Simplify Concepts:</strong> Provides a clear, geometric representation for small-scale problems.</p>
         </div>
         <div class="dashboard-card">
-            <h3>Recent Activity</h3>
+            <h3>Coming Soon</h3>
             <p>Check out your recent activities</p>
         </div>
         <div class="dashboard-card">
-            <h3>Settings</h3>
+            <h3>Coming Soon</h3>
             <p>Update your preferences</p>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2025 SlimKits. All rights reserved.</p>
-    </footer>
+    <!-- Footer Section -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-info"text-align:left>
+                <p>&copy; 2025 Mathematical Programming. All rights reserved.</p>
+                <p>Name: Sunkara Naga Sai Ram Vivek</p>
+                <p>Phone Number:- 8374489767</p>
+                <p>Email- s.nagasairamvivek@gmail.com</p>
+            </div>
+            <div class="social-icons">
+                <a href="https://www.facebook.com" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.twitter.com" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/sunkara-vivek-b2669b289/" target="_blank" title="LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://www.instagram.com/_____v.i.v.e.k___/?__pwa=1" target="_blank" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Your Solver History</h1>
+{% if history_entries %}
+<table>
+    <tr>
+        <th>Objective Function</th>
+        <th>Constraints</th>
+        <th>Optimization</th>
+        <th>Optimal Point</th>
+        <th>Optimal Value</th>
+        <th>Graph</th>
+    </tr>
+    {% for entry in history_entries %}
+    <tr>
+        <td>{{ entry.objective_function }}</td>
+        <td>{{ entry.constraints }}</td>
+        <td>{{ entry.optimization }}</td>
+        <td>{{ entry.optimal_point }}</td>
+        <td>{{ entry.optimal_value }}</td>
+        <td><img src="data:image/png;base64,{{ entry.graph }}" alt="Graph" width="200"></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No history available.</p>
+{% endif %}
+{% endblock %}
