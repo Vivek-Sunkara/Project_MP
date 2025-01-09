@@ -8,28 +8,28 @@
         body {
             margin: 0;
             padding: 0;
-            background-image: url('https://img.freepik.com/free-photo/3d-rendering-hexagonal-texture-background_23-2150796417.jpg'); /* Corrected image URL */
-            background-size:cover; /* Makes the image cover the entire background */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-position: center; /* Centers the image */
-            color: #20d0ef; /* Makes text readable on a dark background */
+            background-image: url('https://img.freepik.com/free-photo/3d-rendering-hexagonal-texture-background_23-2150796417.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #20d0ef;
             font-family: Arial, sans-serif;
         }
         form {
-             /* Adds a semi-transparent background to the form */
             padding: 20px;
             border-radius: 10px;
             width: 60%;
             margin: auto;
             margin-top: 30px;
+            background-color: rgba(0, 0, 0, 0.7);
             color: #20d0ef;
         }
-        h1, h2 {
+        h1, h2, h3 {
             text-align: center;
         }
         button {
             background-color: #087dfb;
-           /* color: white;*/
+            color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
@@ -38,22 +38,36 @@
         button:hover {
             background-color: #0056b3;
         }
+        .step-by-step, .history {
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            color: #20d0ef;
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
     <h1>Linear Programming Solver</h1>
 
+    <!-- Input Form -->
     <form method="POST">
         {% csrf_token %}
         
         <div>
             <label for="objective_function">Objective Function:</label>
-            <textarea id="objective_function" name="objective_function" rows="4" cols="50">{{ obj_func }}</textarea>
+            <textarea id="objective_function" name="objective_function" rows="4" cols="50" placeholder="e.g., 3x + 5y">{{ obj_func }}</textarea>
         </div>
 
         <div>
             <label for="constraints">Constraints:</label>
-            <textarea id="constraints" name="constraints" rows="6" cols="50">{{ constraints }}</textarea>
+            <textarea id="constraints" name="constraints" rows="6" cols="50" placeholder="e.g., 2x + y <= 10&#10;x + 3y <= 15">{{ constraints }}</textarea>
         </div>
 
         <div>
@@ -67,16 +81,47 @@
         <button type="submit">Solve</button>
     </form>
 
+    <!-- Optimal Solution Display -->
     {% if optimal_point %}
         <h2>Optimal Solution:</h2>
-        <p>Optimal Point: {{ optimal_point }}</p>
-        <p>Optimal Value: {{ optimal_value }}</p>
+        <p><strong>Optimal Point:</strong> {{ optimal_point }}</p>
+        <p><strong>Optimal Value:</strong> {{ optimal_value }}</p>
         <img src="data:image/png;base64,{{ graph }}" alt="Graphical Solution">
     {% endif %}
 
+    <!-- Error Display -->
     {% if error %}
-        <div style="color: red;">
+        <div style="color: red; text-align: center;">
             <p>{{ error }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Step-by-Step Solution -->
+    {% if steps %}
+        <div class="step-by-step">
+            <h2>Step-by-Step Solution:</h2>
+            <ul>
+                {% for step in steps %}
+                    <li>{{ step }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- History Section -->
+    {% if history %}
+        <div class="history">
+            <h3>History:</h3>
+            {% for entry in history %}
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Objective Function:</strong> {{ entry.objective_function }}</p>
+                    <p><strong>Constraints:</strong> {{ entry.constraints }}</p>
+                    <p><strong>Optimization:</strong> {{ entry.optimization }}</p>
+                    <p><strong>Optimal Point:</strong> {{ entry.optimal_point }}</p>
+                    <p><strong>Optimal Value:</strong> {{ entry.optimal_value }}</p>
+                </div>
+                <hr style="border-color: #555;">
+            {% endfor %}
         </div>
     {% endif %}
 </body>

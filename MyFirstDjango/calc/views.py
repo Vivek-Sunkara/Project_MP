@@ -96,7 +96,7 @@ def parse_objective_function(obj_func_str):
         raise ValueError(f"Error parsing objective function: {str(e)}")
     
     return obj_expr, x, y
-
+history=[]
 # Function to parse constraints (this is a simple parser, you may need to refine it)
 def parse_constraints(constraints_str):
     constraints = []
@@ -218,8 +218,9 @@ def generate_step_by_step_solution(obj_func, parsed_constraints, intersection_po
     steps.append(f"Step 5: Plotting the solution graph with the optimal point highlighted.")
     
     return steps
-
 def linear_programming_solver(request):
+    global history  # Ensure history is accessible as a global variable
+
     if request.method == "POST":
         obj_func = request.POST.get("objective_function")
         constraints = request.POST.get("constraints")
@@ -256,6 +257,17 @@ def linear_programming_solver(request):
             # Generate step-by-step explanation
             steps = generate_step_by_step_solution(obj_func, parsed_constraints, intersection_points, feasible_points, optimal_point, optimal_value, opt)
 
+            # Save input/output to history
+            history.append({
+                'objective_function': obj_func,
+                'constraints': constraints,
+                'optimization': opt,
+                'optimal_point': optimal_point,
+                'optimal_value': optimal_value,
+                'steps': steps,
+                'graph': graph
+            })
+
             return render(request, 'solver.html', {
                 'optimal_point': optimal_point,
                 'optimal_value': optimal_value,
@@ -263,11 +275,13 @@ def linear_programming_solver(request):
                 'steps': steps,
                 'obj_func': obj_func,
                 'constraints': constraints,
-                'opt': opt
+                'opt': opt,
+                'history': history,  # Include history in the context
             })
-        except Exception as e:
-            return render(request, 'solver.html', {'error': str(e)})
 
-    return render(request, 'solver.html')
+        except Exception as e:
+            return render(request, 'solver.html', {'error': str(e), 'history': history})  # Include history in case of error
+
+    return render(request, 'solver.html', {'history': history}) 
 def home(request):
     return render(request, 'home.html') 

@@ -6,29 +6,50 @@
     <title>Simplex Solver</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            background-image: url('https://img.freepik.com/free-photo/3d-rendering-hexagonal-texture-background_23-2150796417.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #20d0ef;
             font-family: Arial, sans-serif;
-            margin: 20px;
         }
-        .form-container {
-            max-width: 600px;
-            margin: 0 auto;
+        form {
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            margin: auto;
+            margin-top: 30px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #20d0ef;
         }
-        label, input, textarea, button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
+        h1, h2, h3 {
+            text-align: center;
         }
-        .result, .history {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
+        button {
+            background-color: #087dfb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 5px;
-            background: #f9f9f9;
+            cursor: pointer;
         }
-        .history-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+        button:hover {
+            background-color: #0056b3;
+        }
+        .step-by-step, .history {
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            color: #20d0ef;
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -74,7 +95,19 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Clear History Button -->
+    <div class="clear-history">
+        <button type="button" onclick="clearHistory()">Clear History</button>
+    </div>
 </div>
+
+<script>
+    function clearHistory() {
+        const historyDiv = document.querySelector('.history');
+        historyDiv.innerHTML = '<h2>History</h2>'; // Clear history content
+    }
+</script>
 
 </body>
 </html>
