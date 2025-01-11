@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linear Programming Solver</title>
     <style>
+          /* Navigation Bar */
+          .navbar {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: transparent;
+            box-shadow: none;
+            padding: 20px;
+            padding-left: 20px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+        }
+        .navbar a {
+            text-decoration: none;
+            margin: 0 20px;
+            color: #20d0ef;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            transform: translateY(-3px);
+        }
         body {
             margin: 0;
             padding: 0;
@@ -54,6 +80,12 @@
     </style>
 </head>
 <body>
+     
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="{% url 'linear_programming_solver' %}">Graphical Method</a>
+        <a href="{% url 'simplex' %}">Simple Form</a>
+    </div>
     <h1>Linear Programming Solver</h1>
 
     <!-- Input Form -->
