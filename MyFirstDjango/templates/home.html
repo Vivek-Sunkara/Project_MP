@@ -14,7 +14,6 @@
             color: #333;
         }
 
-        /* Navigation Bar */
         .navbar {
             display: flex;
             justify-content: flex-start;
@@ -35,12 +34,34 @@
             font-weight: 600;
             transition: color 0.3s ease, transform 0.3s ease;
         }
-
         .navbar a:hover {
             color: #0056b3;
             transform: translateY(-3px);
         }
-
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: #007BFF;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
         /* Hero Section */
         .hero {
             text-align: center;
@@ -64,8 +85,8 @@
 
         /* Dashboard Section */
         .dashboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            overflow-x: scroll; /* Enable horizontal scrolling */
             gap: 20px;
             padding: 40px 20px;
             max-width: 1200px;
@@ -79,10 +100,18 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
             transition: transform 0.3s ease;
+            flex-shrink: 0; /* Prevent cards from shrinking */
+            width: 300px; /* Fixed width for each card */
         }
 
         .dashboard-card:hover {
             transform: translateY(-5px);
+        }
+
+        /* Middle Card Hover Effect */
+        .dashboard-card.middle-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .dashboard-card h3 {
@@ -151,8 +180,14 @@
     <!-- Navigation Bar -->
     <div class="navbar">
         <a href="/">Home</a>
-        <a href="{% url 'linear_programming_solver' %}">Graphical Method</a>
-        <a href="{% url 'simplex' %}">Simple Form</a>
+        <div class="dropdown">
+            <a href="#">Linear Programming</a>
+            <div class="dropdown-content">
+                <a href="{% url 'simplex' %}">Simplex Method</a>
+                <a href="{% url 'linear_programming_solver' %}">Graphical Method</a>
+            </div>
+        </div>
+        <a href="{% url 'form' %}">Transportation</a>
     </div>
 
     <!-- Hero Section -->
@@ -170,28 +205,37 @@
             <p><strong>Find Optimal Solutions:</strong> Determines maximum or minimum values of the objective function at the region's vertices.</p>
             <p><strong>Simplify Concepts:</strong> Provides a clear, geometric representation for small-scale problems.</p>
         </div>
-        <div class="dashboard-card">
-            <h3>LP- Simple Method </h3>
-            <p>The Simplex Method is a step-by-step algorithm used to solve Linear Programming (LP) problems, which aim to maximize or minimize a linear objective function (like profit or cost) while satisfying constraints</p>
-            <p><strong>How It Works:</strong> </p><p>Set up equations for the objective and constraints.</p>
+        <div class="dashboard-card middle-card">
+            <h3>LP - Simplex Method</h3>
+            <p>The Simplex Method is a step-by-step algorithm used to solve Linear Programming (LP) problems, which aim to maximize or minimize a linear objective function (like profit or cost) while satisfying constraints.</p>
+            <p><strong>How It Works:</strong></p>
+            <p>Set up equations for the objective and constraints.</p>
             <p>Organize them into a table (Simplex tableau).</p>
             <p>Move systematically between feasible solutions to improve the objective.</p>
-            <p>Stop when the best solution is found</p>
+            <p>Stop when the best solution is found.</p>
+        </div>
+        <div class="dashboard-card">
+            <h3>Transportation</h3>
+            <p>The Transportation Problem is a type of Linear Programming problem where the objective is to determine the most cost-effective way to transport goods from multiple suppliers to multiple consumers.</p>
+            <p><strong>Methods Used:</strong></p>
+            <p><strong>1. Northwest Corner Method:</strong> A basic feasible solution is obtained by starting at the top-left (northwest) corner of the cost matrix and moving either right or down.</p>
+            <p><strong>2. Least Cost Method:</strong> This method selects the cell with the smallest cost and allocates as much as possible to that cell, then moves to the next smallest cost cell.</p>
+            <p><strong>3. Vogel's Approximation Method (VAM):</strong> This method calculates penalties for not using the least cost route and allocates to the route with the highest penalty.</p>
+            <p><strong>4. MODI Method:</strong> The Modified Distribution Method (MODI) is used to find the optimal solution by improving the initial feasible solution obtained by the above methods.</p>
         </div>
         <div class="dashboard-card">
             <h3>Coming Soon</h3>
-            
         </div>
     </div>
 
     <!-- Footer Section -->
     <div class="footer">
         <div class="footer-content">
-            <div class="footer-info"text-align:left>
+            <div class="footer-info">
                 <p>&copy; 2025 Mathematical Programming. All rights reserved.</p>
                 <p>Name: Sunkara Naga Sai Ram Vivek</p>
-                <p>Phone Number:- 8374489767</p>
-                <p>Email- s.nagasairamvivek@gmail.com</p>
+                <p>Phone Number: 8374489767</p>
+                <p>Email: s.nagasairamvivek@gmail.com</p>
             </div>
             <div class="social-icons">
                 <a href="https://www.facebook.com" target="_blank" title="Facebook">
@@ -210,5 +254,5 @@
         </div>
     </div>
 
-</body>
+</body> 
 </html>
