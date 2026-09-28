@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplex Solver</title>
+    <title>Transportation Problem Solver</title>
     <style>
         /* Navigation Bar */
+
         .navbar {
             display: flex;
             justify-content: flex-start;
@@ -54,7 +55,6 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
         body {
             margin: 0;
             padding: 0;
@@ -65,6 +65,8 @@
             color: #20d0ef;
             font-family: Arial, sans-serif;
         }
+
+        /* Form Styling */
         form {
             padding: 20px;
             border-radius: 10px;
@@ -73,27 +75,6 @@
             margin-top: 30px;
             background-color: rgba(0, 0, 0, 0.7);
             color: #20d0ef;
-        }
-        form label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        form input, form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #007BFF;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #20d0ef;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, background-color 0.3s ease;
-        }
-        form input:focus, form textarea:focus {
-            border-color: #0056b3;
-            background-color: rgba(255, 255, 255, 0.2);
-            outline: none;
         }
         h1, h2, h3 {
             text-align: center;
@@ -109,6 +90,8 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        /* Result and History Section */
         .step-by-step, .history {
             width: 60%;
             margin: 20px auto;
@@ -175,6 +158,8 @@
     </style>
 </head>
 <body>
+
+    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="/">Home</a>
         <div class="dropdown">
@@ -186,59 +171,61 @@
         </div>
         <a href="{% url 'form' %}">Transportation</a>
     </div>
-<div class="form-container">
-    <h1>Simplex Method Solver</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="c">Objective Coefficients (comma-separated):</label>
-        <input type="text" id="c" name="c" placeholder="e.g., 9,10,7" required>
+    <!-- Form Section -->
+    <div class="form-container">
+        <h1>Transportation Problem Solver</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="cost_matrix">Cost Matrix (comma-separated rows):</label><br>
+            <textarea id="cost_matrix" name="cost_matrix" rows="4" cols="50">{{ request.POST.cost_matrix }}</textarea><br>
 
-        <label for="A">Constraints Coefficients (semicolon-separated rows):</label>
-        <textarea id="A" name="A" placeholder="e.g., 1,3,2; 4,1,3; 2,4,1" required></textarea>
+            <label for="supply">Supply (comma-separated):</label><br>
+            <input type="text" id="supply" name="supply" value="{{ request.POST.supply }}"><br>
 
-        <label for="b">Right-hand Side Values (comma-separated):</label>
-        <input type="text" id="b" name="b" placeholder="e.g., 12,16,14" required>
+            <label for="demand">Demand (comma-separated):</label><br>
+            <input type="text" id="demand" name="demand" value="{{ request.POST.demand }}"><br>
 
-        <button type="submit">Solve</button>
-    </form>
+            <button type="submit">Solve</button>
+        </form>
 
-    <!-- Display Result -->
-    {% if result %}
-    <div class="result">
-        <h2>Result</h2>
-        <p><strong>Solution:</strong> {{ result.solution }}</p>
-        <p><strong>Optimal Value:</strong> {{ result.optimal_value }}</p>
-    </div>
-    {% elif error %}
-    <div class="result">
-        <h2>Error</h2>
-        <p>{{ error }}</p>
-    </div>
-    {% endif %}
-
-    <!-- Display History -->
-    <div class="history">
-        <h2>History</h2>
-        {% for item in history %}
-        <div class="history-item">
-            <p><strong>Input:</strong> c={{ item.input.c }}, A={{ item.input.A }}, b={{ item.input.b }}</p>
-            <p><strong>Output:</strong> Solution={{ item.output.solution }}, Optimal Value={{ item.output.optimal_value }}</p>
+        <!-- Result Section -->
+        {% if result %}
+        <div class="result">
+            <h2>Result</h2>
+            <p><strong>Total Cost:</strong> {{ result.total_cost }}</p>
+            <p><strong>Solution Matrix:</strong> {{ result.solution }}</p>
+            <p><strong>Status:</strong> {{ result.status }}</p>
         </div>
-        {% endfor %}
-    </div>
+        {% elif error %}
+        <div class="result">
+            <h2>Error</h2>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
 
-    <!-- Clear History Button -->
-    <div class="clear-history">
-        <button type="button" onclick="clearHistory()">Clear History</button>
+        <!-- Previous Solvers Section -->
+        <div class="history">
+            <h2>Previous Solvers</h2>
+            {% if history %}
+            <ul>
+                {% for entry in history %}
+                <li>
+                    <strong>Input:</strong>
+                    Cost Matrix: {{ entry.input.cost_matrix }}<br>
+                    Supply: {{ entry.input.supply }}<br>
+                    Demand: {{ entry.input.demand }}<br>
+                    <strong>Output:</strong>
+                    Total Cost: {{ entry.output.total_cost }}<br>
+                    Solution: {{ entry.output.solution }}<br>
+                    Status: {{ entry.output.status }}<br>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No history yet.</p>
+            {% endif %}
+        </div>
     </div>
-</div>
-
-<script>
-    function clearHistory() {
-        const historyDiv = document.querySelector('.history');
-        historyDiv.innerHTML = '<h2>History</h2>'; // Clear history content
-    }
-</script>
 
     <!-- Footer Section -->
     <div class="footer">

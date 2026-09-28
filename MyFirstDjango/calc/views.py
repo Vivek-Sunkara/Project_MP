@@ -283,5 +283,82 @@ def linear_programming_solver(request):
             return render(request, 'solver.html', {'error': str(e), 'history': history})  # Include history in case of error
 
     return render(request, 'solver.html', {'history': history}) 
+# --- Transportation Problem Solver ---
+from scipy.optimize import linprog
+
+# Global history for both solvers
+history = []
+
+def solve_transportation_problem(cost_matrix, supply, demand):
+    cost_matrix = np.array(cost_matrix)
+    supply = np.array(supply)
+    demand = np.array(demand)
+
+    m, n = cost_matrix.shape
+    c = cost_matrix.flatten()
+
+    A_eq = []
+    b_eq = []
+
+    for i in range(m):
+        row_constraint = [0] * (m * n)
+        for j in range(n):
+            row_constraint[i * n + j] = 1
+        A_eq.append(row_constraint)
+        b_eq.append(supply[i])
+
+    for j in range(n):
+        col_constraint = [0] * (m * n)
+        for i in range(m):
+            col_constraint[i * n + j] = 1
+        A_eq.append(col_constraint)
+        b_eq.append(demand[j])
+
+    result = linprog(c, A_eq=A_eq, b_eq=b_eq, bounds=(0, None), method='highs')
+
+    if result.success:
+        solution_matrix = result.x.reshape(m, n)
+        return {
+            "solution": solution_matrix,
+            "total_cost": result.fun,
+            "status": result.message,
+        }
+    else:
+        return {
+            "solution": None,
+            "total_cost": None,
+            "status": result.message,
+        }
+
+def transportation_view(request):
+    global history
+    result = None
+    error = None
+    if request.method == 'POST':
+        form_data = request.POST
+        try:
+            # Parse user inputs
+            cost_matrix = [list(map(int, row.split(','))) for row in form_data['cost_matrix'].splitlines()]
+            supply = list(map(int, form_data['supply'].split(',')))
+            demand = list(map(int, form_data['demand'].split(',')))
+
+            # Solve transportation problem
+            result = solve_transportation_problem(cost_matrix, supply, demand)
+
+            # Store history of inputs and results
+            history.append({
+                'input': {'cost_matrix': cost_matrix, 'supply': supply, 'demand': demand},
+                'output': result
+            })
+
+        except Exception as e:
+            error = str(e)
+    
+    return render(request, 'form.html', {
+        'result': result,
+        'error': error,
+        'history': history
+    })
+
 def home(request):
     return render(request, 'home.html') 
